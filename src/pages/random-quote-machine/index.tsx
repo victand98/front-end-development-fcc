@@ -1,4 +1,4 @@
-import { DefaultLayout } from "@/components";
+import { Button, DefaultLayout } from "@/components";
 import { useQuote } from "@/hooks";
 import { QuoteService, getSWRKey } from "@/lib";
 import { InferGetServerSidePropsType, NextPageWithLayout } from "next";
@@ -8,8 +8,8 @@ import Image from "next/image";
 const RandomQuoteMachine: NextPageWithLayout<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = () => {
-  const { data, mutate } = useQuote();
-  const quote = data?.[0];
+  const { data, mutate, loading, isValidating } = useQuote();
+  const quote = data?.[0]!;
 
   const updateQuote = () => mutate();
 
@@ -18,6 +18,7 @@ const RandomQuoteMachine: NextPageWithLayout<
       <Head>
         <title>Random Quote Machine</title>
       </Head>
+
       <div
         className="flex flex-col items-center justify-center max-w-sm space-y-8"
         id="quote-box"
@@ -32,7 +33,9 @@ const RandomQuoteMachine: NextPageWithLayout<
         <div className="flex justify-between items-center w-full">
           <a
             id="tweet-quote"
-            href="https://www.twitter.com/intent/tweet"
+            href={`https://www.twitter.com/intent/tweet?text=${encodeURIComponent(
+              `"${quote.quote}" - ${quote.author}`
+            )}&hashtags=${encodeURIComponent(quote.category)}`}
             target="_blank"
             rel="noreferrer"
           >
@@ -44,9 +47,13 @@ const RandomQuoteMachine: NextPageWithLayout<
             />
           </a>
 
-          <button id="new-quote" className="btn btn-blue" onClick={updateQuote}>
+          <Button
+            id="new-quote"
+            onClick={updateQuote}
+            disabled={loading || isValidating}
+          >
             New Quote
-          </button>
+          </Button>
         </div>
       </div>
     </>
