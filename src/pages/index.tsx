@@ -9,9 +9,15 @@ const Home: NextPageWithLayout = () => {
       <Head>
         <title>Front End Libraries Projects</title>
       </Head>
-      <div>
-        <Link href="/random-quote-machine">Random Quote Machine</Link>
-      </div>
+
+      <ul>
+        <li>
+          <Link href="/random-quote-machine">Random Quote Machine</Link>
+        </li>
+        <li>
+          <Link href="/markdown-previewer">Markdown Previewer</Link>
+        </li>
+      </ul>
     </>
   );
 };
