@@ -17,6 +17,9 @@ const Home: NextPageWithLayout = () => {
         <li>
           <Link href="/markdown-previewer">Markdown Previewer</Link>
         </li>
+        <li>
+          <Link href="/drum-machine">Drum Machine</Link>
+        </li>
       </ul>
     </>
   );
