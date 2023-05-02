@@ -20,6 +20,9 @@ const Home: NextPageWithLayout = () => {
         <li>
           <Link href="/drum-machine">Drum Machine</Link>
         </li>
+        <li>
+          <Link href="/javascript-calculator">JavaScript Calculator</Link>
+        </li>
       </ul>
     </>
   );
