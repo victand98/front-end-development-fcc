@@ -8,7 +8,8 @@ export const calculatorButtons: CalculatorButton[] = [
   {
     value: "AC",
     id: "clear",
-    className: "col-span-2 bg-rose-500 hover:bg-rose-600 h-12 md:h-14 lg:h-16",
+    className:
+      "col-span-2 h-12 md:h-14 lg:h-16 bg-yellow-500 hover:bg-yellow-600",
   },
   {
     value: "/",
