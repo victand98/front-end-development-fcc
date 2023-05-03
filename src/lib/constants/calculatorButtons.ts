@@ -8,7 +8,7 @@ export const calculatorButtons: CalculatorButton[] = [
   {
     value: "AC",
     id: "clear",
-    className: "col-span-2 bg-red-500 hover:bg-red-600 h-12 md:h-14 lg:h-16",
+    className: "col-span-2 bg-rose-500 hover:bg-rose-600 h-12 md:h-14 lg:h-16",
   },
   {
     value: "/",
@@ -16,7 +16,7 @@ export const calculatorButtons: CalculatorButton[] = [
     className: "bg-slate-400",
   },
   {
-    value: "*",
+    value: "x",
     id: "multiply",
     className: "bg-slate-400",
   },
@@ -34,7 +34,7 @@ export const calculatorButtons: CalculatorButton[] = [
     id: "nine",
   },
   {
-    value: "-",
+    value: "‑",
     id: "subtract",
     className: "bg-slate-400",
   },

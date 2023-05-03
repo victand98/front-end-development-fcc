@@ -1,4 +1,4 @@
-import { DefaultLayout, DrumPad } from "@/components";
+import { DefaultLayout, DrumPad, Title } from "@/components";
 import { DRUM_PADS } from "@/lib";
 import { NextPageWithLayout } from "next";
 import Head from "next/head";
@@ -32,7 +32,7 @@ const DrumMachine: NextPageWithLayout = () => {
       </Head>
 
       <div className="container mx-auto p-4" id="drum-machine">
-        <h1 className="text-2xl font-bold text-center mb-4">Drum Machine</h1>
+        <Title>Drum Machine</Title>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
           <div className="grid grid-cols-3 gap-4">

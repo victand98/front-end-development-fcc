@@ -1,83 +1,145 @@
-import { CalculatorButton, DefaultLayout } from "@/components";
+import { CalculatorButton, DefaultLayout, Title } from "@/components";
 import { calculatorButtons } from "@/lib";
+import { evaluate } from "mathjs";
 import { NextPageWithLayout } from "next";
 import Head from "next/head";
 import React from "react";
 
+const isOperator = /[x/+‑]/;
+const endsWithOperatorSymbol = /[x+‑/]$/;
+const endsWithNegativeSign = /\d[x/+‑]{1}‑$/;
+const maxDigits = 21;
+
 const JavaScriptCalculator: NextPageWithLayout = () => {
   const [formula, setFormula] = React.useState("");
-  const [value, setValue] = React.useState("0");
-  const [result, setResult] = React.useState("");
+  const [currentValue, setCurrentValue] = React.useState("0");
+  const [prevValue, setPrevValue] = React.useState("0");
+  const [isEvaluated, setIsEvaluated] = React.useState(false);
 
-  const handleNumberClick = (number: string) => {
-    if (value === "0") {
-      setValue(number);
-    } else if (value === "-0") {
-      setValue(`-${number}`);
+  const maxDigitWarning = () => {
+    setCurrentValue("Digit Limit Met");
+    setPrevValue(currentValue);
+    setTimeout(() => setCurrentValue(prevValue), 1000);
+  };
+
+  const handleClear = () => {
+    setCurrentValue("0");
+    setPrevValue("0");
+    setFormula("");
+    setIsEvaluated(false);
+  };
+
+  const handleOperator = (operator: string) => {
+    if (!currentValue.includes("Limit")) {
+      setCurrentValue(operator);
+      setIsEvaluated(false);
+
+      if (isEvaluated) setFormula(prevValue + operator);
+      else if (endsWithOperatorSymbol.test(formula)) {
+        if (endsWithNegativeSign.test(formula)) {
+          if (operator !== "‑") setFormula(prevValue + operator);
+        } else {
+          let newFormula =
+            (endsWithNegativeSign.test(formula + operator)
+              ? formula
+              : prevValue) + operator;
+          setFormula(newFormula);
+        }
+      } else {
+        setPrevValue(formula);
+        setFormula(formula + operator);
+      }
+    }
+  };
+
+  const handleNumber = (number: string) => {
+    if (!currentValue.includes("Limit")) {
+      setIsEvaluated(false);
+
+      if (currentValue.length > maxDigits) {
+        maxDigitWarning();
+        return;
+      }
+
+      if (isEvaluated) {
+        setCurrentValue(number);
+        setFormula(number !== "0" ? number : "");
+      } else {
+        if (currentValue === "0" && number === "0") {
+          if (formula === "") setFormula(number);
+          return;
+        }
+        if (currentValue === "0" || isOperator.test(currentValue))
+          setCurrentValue(number);
+        else setCurrentValue(currentValue + number);
+
+        setFormula(
+          /([^.0-9]0|^0)$/.test(formula)
+            ? formula.slice(0, -1) + number
+            : formula + number
+        );
+      }
+    }
+  };
+
+  const handleDecimal = () => {
+    if (currentValue.includes(".") || currentValue.includes("Limit")) return;
+    setIsEvaluated(false);
+
+    if (isEvaluated) {
+      setCurrentValue("0.");
+      setFormula("0.");
     } else {
-      setValue(value + number);
+      if (currentValue.length > maxDigits) {
+        maxDigitWarning();
+        return;
+      }
+      if (
+        endsWithOperatorSymbol.test(formula) ||
+        (currentValue === "0" && formula === "")
+      ) {
+        setCurrentValue("0.");
+        setFormula(formula + "0.");
+      } else {
+        setCurrentValue(formula.match(/(-?\d+\.?\d*)$/)?.[0] + ".");
+        setFormula(formula + ".");
+      }
     }
   };
 
-  const handleDecimalClick = () => {
-    if (!value.includes(".")) {
-      setValue(value + ".");
+  const handleEqual = () => {
+    if (currentValue.includes("Limit")) {
+      return;
     }
-  };
-
-  const handleOperatorClick = (operator: string) => {
-    if (value.endsWith(".")) {
-      setValue(value.slice(0, -1));
+    let expression = formula;
+    while (endsWithOperatorSymbol.test(expression)) {
+      expression = expression.slice(0, -1);
     }
-
-    if (result) {
-      setResult("");
-      setValue(result);
-    }
-
-    if (
-      (value.endsWith("+") ||
-        value.endsWith("-") ||
-        value.endsWith("*") ||
-        value.endsWith("/")) &&
-      operator !== "-"
-    ) {
-      setValue(value.slice(0, -1) + operator);
-    } else {
-      setValue(value + operator);
-    }
-  };
-
-  const handleEqualsClick = () => {
-    if (
-      value.endsWith("+") ||
-      value.endsWith("-") ||
-      value.endsWith("*") ||
-      value.endsWith("/")
-    ) {
-      setValue(value.slice(0, -1));
-    }
-
-    const expression = value
-      .replace(/(\+|-|\*|\/){2,}/g, "$1") // remove consecutive operators
-      .replace(/(\d*\.\d+)(\.)/g, "$1") // remove extra decimals
-      .replace(/^(-\d+\.\d+)$|^(\d+\.\d+)$/g, "($1$2)") // handle negative decimals
-      .replace(/(\d+)(\()/g, "$1*$2") // handle implicit multiplication
-      .replace(/(\))(\d+)/g, "$1*$2"); // handle implicit multiplication
+    expression = expression
+      .replace(/x/g, "*")
+      .replace(/‑/g, "-")
+      .replace(/--/g, "+0+0+0+0+0+0+");
 
     try {
-      const calculatedResult = Math.round(10000 * eval(expression)) / 10000;
-      setResult(calculatedResult.toString());
-      setValue(calculatedResult.toString());
+      const answer = Math.round(10000 * evaluate(expression)) / 10000; // 4 decimal places
+      setCurrentValue(answer.toString());
+      setFormula(
+        expression
+          .replace(/\*/g, "⋅")
+          .replace(/-/g, "‑")
+          .replace("+0+0+0+0+0+0+", "‑-")
+          .replace(/(x|\/|\+)‑/, "$1-")
+          .replace(/^‑/, "-") +
+          "=" +
+          answer
+      );
+      setPrevValue(answer.toString());
+      setIsEvaluated(true);
     } catch (error) {
-      setResult("");
-      setValue("0");
+      setCurrentValue("Error");
+      setPrevValue("0");
+      setIsEvaluated(true);
     }
-  };
-
-  const handleClearClick = () => {
-    setResult("");
-    setValue("0");
   };
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -85,22 +147,23 @@ const JavaScriptCalculator: NextPageWithLayout = () => {
 
     switch (value) {
       case "AC":
-        handleClearClick();
-        break;
-      case "=":
-        handleEqualsClick();
-        break;
-      case ".":
-        handleDecimalClick();
+        handleClear();
         break;
       case "+":
-      case "-":
-      case "*":
+      case "‑":
+      case "x":
       case "/":
-        handleOperatorClick(value);
+        handleOperator(value);
         break;
+      case "=":
+        handleEqual();
+        break;
+      case ".":
+        handleDecimal();
+        break;
+
       default:
-        handleNumberClick(value);
+        handleNumber(value);
         break;
     }
   };
@@ -112,22 +175,20 @@ const JavaScriptCalculator: NextPageWithLayout = () => {
       </Head>
 
       <div className="container mx-auto p-4" id="drum-machine">
-        <h1 className="text-2xl font-bold text-center mb-4">
-          JavaScript Calculator
-        </h1>
+        <Title>JavaScript Calculator</Title>
 
         <div className="bg-slate-800 max-w-sm mx-auto rounded-md shadow-lg p-3 grid grid-cols-4 gap-[2px]">
           <div
             id="formula-screen"
             className="col-span-4 text-right text-orange-400 text-xs"
           >
-            {formula}
+            {formula.replace(/x/g, "⋅") || "0"}
           </div>
           <div
             id="display"
             className="col-span-4 text-right text-white text-xl font-mono"
           >
-            {value}
+            {currentValue}
           </div>
 
           {calculatorButtons.map((button) => (

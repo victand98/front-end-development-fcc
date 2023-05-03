@@ -1,4 +1,4 @@
-import { DefaultLayout } from "@/components";
+import { DefaultLayout, Title } from "@/components";
 import { marked } from "marked";
 import { NextPageWithLayout } from "next";
 import Head from "next/head";
@@ -33,9 +33,7 @@ const MarkdownPreviewer: NextPageWithLayout = () => {
       </Head>
 
       <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold text-center mb-4">
-          Markdown Previewer
-        </h1>
+        <Title>Markdown Previewer</Title>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div>
