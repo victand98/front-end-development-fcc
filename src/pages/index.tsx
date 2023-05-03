@@ -1,4 +1,5 @@
 import { DefaultLayout } from "@/components";
+import { menuRoutes } from "@/lib";
 import { NextPageWithLayout } from "next";
 import Head from "next/head";
 import Link from "next/link";
@@ -10,19 +11,18 @@ const Home: NextPageWithLayout = () => {
         <title>Front End Libraries Projects</title>
       </Head>
 
-      <ul>
-        <li>
-          <Link href="/random-quote-machine">Random Quote Machine</Link>
-        </li>
-        <li>
-          <Link href="/markdown-previewer">Markdown Previewer</Link>
-        </li>
-        <li>
-          <Link href="/drum-machine">Drum Machine</Link>
-        </li>
-        <li>
-          <Link href="/javascript-calculator">JavaScript Calculator</Link>
-        </li>
+      <ul className="p-3 space-y-1 text-sm font-medium text-gray-700 dark:text-gray-200 my-auto">
+        {menuRoutes.map(({ icon: Icon, ...route }) => (
+          <li key={route.path}>
+            <Link
+              href={route.path}
+              className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white rounded-md border border-gray-100"
+            >
+              <Icon className="mr-2" />
+              {route.name}
+            </Link>
+          </li>
+        ))}
       </ul>
     </>
   );

@@ -44,6 +44,7 @@ const RandomQuoteMachine: NextPageWithLayout<
               alt="Twitter"
               width={25}
               height={25}
+              style={{ width: 25, height: 25 }}
             />
           </a>
 
